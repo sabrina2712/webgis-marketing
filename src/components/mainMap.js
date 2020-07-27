@@ -14,64 +14,45 @@ import { toLonLat } from 'ol/proj';
 import { fromLonLat, get } from "ol/proj"
 import { transform } from 'ol/proj';
 import { toStringHDMS } from 'ol/coordinate';
+import DragAndDrop from 'ol/interaction/DragAndDrop';
 import data from "./germany.json"
 import Polygon from 'ol/geom/Polygon';
 
 console.log(data)
-
 class MainMap extends React.Component{
 
- 
- getStyle=()=>{
-        return new Style({
-          stroke: new Stroke({
-            color: 'green',
-            width: 2
-          }),
-          fill: new Fill({
-            color: 'rgba(0,0,255,0.2)'
-          })
-      })}
  componentDidMount(){
-  /*
 
-    data.forEach((d)=>{
-        const coor=  d.geometry.coordinates;
-        let type = d.geometry.type
-        console.log(type)
-      
-    var vectorLayer =  new VectorLayer({ title: 'added Layer',
-           source: new  VectorSource({ url: 'germany.json', 
-                      format: new GeoJSON() }) })
-  
-    });
-
-      */
-
-   
-      var map = new Map({
+var vectorSource = new VectorSource({
+	url: data,
+	format: new GeoJSON()
+});
+let vectorLayer = new VectorLayer({ source: vectorSource });
+     
+var map = new Map({
         target: 'map',
         layers: [
           new TileLayer({
             source: new OSM()
-          }),   new VectorLayer({
-            source: new VectorSource({
-              format: new GeoJSON(),
-              url: './germany.json'
-            })
-          })
-        ],
-    
-        view: new View({
-          
+          }),   
+         
+          vectorLayer
+        
+       ],
+         view: new View({
           center:fromLonLat([0, 0]),
           zoom: 4
         })
       });
-        }
+  
+    }
+        
     render(){
       
     return(<div id="map" className="main-map"></div>)
     }
-}
+
+  }
+
+
 export default MainMap;
