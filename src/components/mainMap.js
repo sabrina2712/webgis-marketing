@@ -17,40 +17,47 @@ import { toStringHDMS } from 'ol/coordinate';
 import DragAndDrop from 'ol/interaction/DragAndDrop';
 import data from "./germany.json"
 import Polygon from 'ol/geom/Polygon';
+import {get as getProjection} from 'ol/proj';
 
-console.log(data)
-class MainMap extends React.Component{
 
- componentDidMount(){
+  class MainMap extends React.Component{
 
-var vectorSource = new VectorSource({
-	url: data,
-	format: new GeoJSON()
-});
-let vectorLayer = new VectorLayer({ source: vectorSource });
+  componentDidMount(){
+    var jsondata = JSON.parse(data);
+    
+
+
+
+
+    var vectorSource = new VectorSource({
+        features: new GeoJSON({
+        dataProjection: "EPSG:4326",
+        featureProjection:"EPSG:3857"
+        }).readFeatures(data),
+        });
+
+
+
+      let vectorLayer = new VectorLayer({ source: vectorSource });
      
-var map = new Map({
-        target: 'map',
-        layers: [
-          new TileLayer({
-            source: new OSM()
-          }),   
-         
-          vectorLayer
+      var map = new Map({
+            target: 'map',
+            layers: [
+              new TileLayer({
+                source: new OSM()
+              }),   
+                vectorLayer
+              ],
+                view: new View({
+                center: fromLonLat([0, 0]),
+                zoom: 4
+              })
+            });
         
-       ],
-         view: new View({
-          center:fromLonLat([0, 0]),
-          zoom: 4
-        })
-      });
-  
-    }
-        
-    render(){
-      
-    return(<div id="map" className="main-map"></div>)
-    }
+          }
+          render(){
+            return(<div id="map" className="main-map"></div>)
+          }
 
   }
 
