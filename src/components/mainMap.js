@@ -40,7 +40,8 @@ constructor(){
     "DE-SN": 3835,
     "DE-ST": 3852,
     "DE-TH": 4264
-    }}
+    },
+  colors: {red: "rgba(255,0,0,1)", green: "rgba(0,255,0,1)", blue:"rgba(0,0,255,1)", purple: "rgba(145, 61, 136, 1)" }}
 }
      
 componentDidMount(){
@@ -51,43 +52,42 @@ componentDidMount(){
       f.properties['revenue'] = revenueForThisState;
       return revenueForThisState;
       });
-      
-    console.log(resultRev)
- 
-      const colorFunc = resultRev.map((result, i)=>{
-              console.log(result)
-              let color = null;
-             if (result > 0 && result < 2000) {
-              console.log(result)
-              color = 'rgba(255,0,0,0.2)';
-        
-            } else if (result >= 2000 && result < 4000) {
-              console.log(result)
-              color = 'rgba(0,0,255,0.2)';
-            } else if (result > 4000) {
-              console.log(result)
-              color = 'rgba(0,255,0,0.4)';
-            }
-             
-             return  new Style({
-                stroke: new Stroke({
-                  color: 'green',
-                  width: 2
-                }),
-                fill: new Fill({
-                  color: color, 
-                  
-                })
-              })
-     
 
-        })
-     
-        
- 
-       
+    console.log(resultRev)
+
+      const getColor = (d)=>{
+        console.log(d)
+      return d > 0 ? '#800026' :
+        d > 1000  ? '#BD0026' :
+        d > 2000  ? '#E31A1C' :
+        d > 3000  ? '#FC4E2A' :
+        d > 4000   ? '#FD8D3C' :
+        d > 5000   ? '#FEB24C' :
+        d > 6000 ? '#FED976' :
+                   '#FFEDA0';
+      }
+             
+      function getStyle(data) {
       
-  
+        return  new Style({
+           stroke: new Stroke({
+            
+             width: 2
+           }),
+           fill: new Fill({
+             color: getColor( data.features.map((f)=>{
+               console.log(f)
+                   return f.get("properties").s;
+             }))
+             
+             
+           })
+         })
+
+       
+    }
+      
+      
 var vectorSource = new VectorSource({
         features: new GeoJSON({
         dataProjection: "EPSG:4326",
@@ -97,7 +97,7 @@ var vectorSource = new VectorSource({
 
 
 
-      let vectorLayer = new VectorLayer({ style: colorFunc,source: vectorSource });
+      let vectorLayer = new VectorLayer({ style:  getStyle, source: vectorSource });
      
       var map = new Map({
             target: 'map',
