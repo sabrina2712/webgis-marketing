@@ -11,9 +11,10 @@ import { Circle as CircleStyle, Fill, Stroke, Style, Icon, RegularShape } from '
 import { fromLonLat, get } from "ol/proj"
 import data from "./germany.json"
 import Overlay from 'ol/Overlay';
+import distData from "./distrct-ger.json"
 
 
-
+console.log(distData.features)
 
 class MainMap extends React.Component{
     constructor(){
