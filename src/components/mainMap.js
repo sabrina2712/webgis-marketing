@@ -61,6 +61,33 @@ class MainMap extends React.Component{
                 
 
               });}
+            getColor = (d)=>{
+       
+                return d > 6000 ? '#800026' :
+                  d > 5000  ? '#BD0026' :
+                  d > 4000  ? '#E31A1C' :
+                  d > 3000  ? '#FC4E2A' :
+                  d > 2000   ? '#FD8D3C' :
+                  d > 1000   ? '#FEB24C' :
+                  d > 500 ? '#FED976' :
+                             '#FFEDA0';
+                }
+                    
+                    
+              getLegend=()=>{
+                return <>
+                <div style={{width:"20px", height:"20px", backgroundColor: this.getColor(1000)}}><span className="legend-span">{">"}1000</span></div>
+                <div style={{width:"20px", height:"20px", backgroundColor: this.getColor(2000)}}><span className="legend-span">{">"}2000</span></div>
+                <div style={{width:"20px", height:"20px", backgroundColor: this.getColor(3000)}}><span className="legend-span">{">"}3000</span></div>
+                <div style={{width:"20px", height:"20px", backgroundColor: this.getColor(5000)}}><span className="legend-span">{">"}5000</span></div>
+                <div style={{width:"20px", height:"20px", backgroundColor: this.getColor(6000)}}><span className="legend-span">{">"}6000</span></div>
+                <div style={{width:"20px", height:"20px", backgroundColor: this.getColor(9000)}}><span className="legend-span">{">"}8000</span></div>
+                
+                </>
+              }
+          
+          
+          
     
     
  componentDidMount(){
@@ -71,22 +98,7 @@ class MainMap extends React.Component{
       f.properties['revenue'] = revenueForThisState;
       
       });
-      const getColor = (d)=>{
-       
-      return d > 6000 ? '#800026' :
-        d > 5000  ? '#BD0026' :
-        d > 4000  ? '#E31A1C' :
-        d > 3000  ? '#FC4E2A' :
-        d > 2000   ? '#FD8D3C' :
-        d > 1000   ? '#FEB24C' :
-        d > 500 ? '#FED976' :
-                   '#FFEDA0';
-      }
-          
      
-
-
-
       const getStyle=(f)=> {
         let id = f.get("id")
         let name = f.get("name")
@@ -98,10 +110,9 @@ class MainMap extends React.Component{
           width: 2
           }),
           fill: new Fill({
-          color: getColor( f.get("revenue"))
+          color: this.getColor( f.get("revenue"))
         })
      })}
-     
 
 
 
@@ -166,6 +177,10 @@ var overlay = new Overlay({
             
      let info = document.getElementById("info")
      info.innerHTML= ` ${ stateName} Rv: ${curRev}`
+
+     let legend = document.getElementById("legend")
+    
+     
           })
          
         })
@@ -178,8 +193,10 @@ var overlay = new Overlay({
           render(){
             return(<div id="map" className="main-map" >
               <div id="info" ></div>
-          
+            <div id="legend"><h3 className="legend-header">Legend </h3> {this.getLegend()}</div>
+           
             </div>)
           }
         }
 export default MainMap;
+
