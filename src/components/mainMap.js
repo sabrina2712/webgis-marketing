@@ -20,24 +20,25 @@ class MainMap extends React.Component{
         super();
         this.onClickHandler = this.onClickHandler
         this.state ={stateRevenue : {
-          "DE-BB": 5627,
-          "DE-BE": 5500,
-          "DE-BW": 3231,
-          "DE-BY": 1813,
-          "DE-HB": 9792,
-          "DE-HE": 4538,
-          "DE-HH": 2883,
-          "DE-MV": 9752,
-          "DE-NI": 5550,
-          "DE-NW": 282,
-          "DE-RP": 1469,
-          "DE-SH": 9673,
-          "DE-SL": 7858,
-          "DE-SN": 3835,
-          "DE-ST": 3852,
-          "DE-TH": 4264
+       
+            "DE-BB": 5627,
+            "DE-BE": 5500,
+            "DE-BW": 3231,
+            "DE-BY": 1813,
+            "DE-HB": 9792,
+            "DE-HE": 4538,
+            "DE-HH": 2883,
+            "DE-MV": 9752,
+            "DE-NI": 5550,
+            "DE-NW": 282,
+            "DE-RP": 1469,
+            "DE-SH": 9673,
+            "DE-SL": 7858,
+            "DE-SN": 3835,
+            "DE-ST": 3852,
+            "DE-TH": 4264
           },
-          distData: {0: 824,
+          distRev: {0: 824,
             1: 3176,
             2: 2578,
             3: 2014,
@@ -478,10 +479,6 @@ class MainMap extends React.Component{
         map: this.map
       }
     }
-
-  
-
-  
     getColor = (d)=>{
        
                 return d > 6000 ? '#800026' :
@@ -507,22 +504,20 @@ class MainMap extends React.Component{
                 </>
               }
           
+  componentDidMount=()=>{
+        ///revinue for districts Germany
+        distData.features.forEach((f)=>{
+          const stateOfThisFeature = f['id'];
+          const revenueForThisDist = this.state.distRev[stateOfThisFeature];
+          f.properties['reve'] = revenueForThisDist;
+        
+          });
 
-          
-    
-    
- componentDidMount=()=>{
-      data.features.forEach((f)=>{
-      const stateOfThisFeature = f.properties['id'];
-      const revenueForThisState = this.state.stateRevenue[stateOfThisFeature];
-      f.properties['revenue'] = revenueForThisState;
-      
-      });
-     
-      const getStyle=(f)=> {
+       ///creating style for districts Germany
+        const getStyleForDist=(f)=> {
         let id = f.get("id")
         let name = f.get("name")
-        let rev = this.state.stateRevenue[id]
+        let rev = this.state.distRev[id]
         
         console.log(rev)
           return  new Style({
@@ -530,41 +525,83 @@ class MainMap extends React.Component{
           width: 2
           }),
           fill: new Fill({
-          color: this.getColor( f.get("revenue"))
-        })
-     })}
+          color: this.getColor( f.get("reve"))
+          })
+        })}
+
+                
+        var vectorSourceDist = new VectorSource({
+          features: new GeoJSON({
+              dataProjection: "EPSG:4326",
+              featureProjection:"EPSG:3857"
+          }).readFeatures(distData),
+          });
+
+        let vectorLayerDist = new VectorLayer({ style:  getStyleForDist, source: vectorSourceDist });
+      
+      
+        //// experiment with state 
+          /*   
+        distData.features.forEach((f)=>{
+          const stateNameOfThisFeature =  f.properties['NAME_1'];
+          const revenueAmtForThisState = this.state.stateRevenue[stateNameOfThisFeature];
+          f.properties['revenue'] = revenueAmtForThisState;
+          console.log(revenueAmtForThisState)
+          });
+
+          */
+
+      ///revinue for States Germany
+      data.features.forEach((f)=>{
+        const stateOfThisFeature = f.properties['id'];
+        const revenueForThisState = this.state.stateRevenue[stateOfThisFeature];
+        f.properties['revenue'] = revenueForThisState;
+        
+        });
+          
+     
+      const getStyle=(f)=> {
+        let id = f.get("id")
+        let name = f.get("name")
+        let rev = this.state.stateRevenue[id]
+      return  new Style({
+        stroke: new Stroke({
+        width: 2
+        }),
+        fill: new Fill({
+        color: this.getColor( f.get("revenue"))
+          })
+        })}
+        var infoMy = document.getElementById('info');
 
 
-
-var infoMy = document.getElementById('info');
-
-
-/**
- * Create an overlay to anchor the popup to the map.
- */
-var overlay = new Overlay({
-	element: infoMy,
-	autoPan: true,
-	autoPanAnimation: {
-		duration: 250
-	}
-});
-            
-    var vectorSource = new VectorSource({
+        /**
+         * Create an overlay to anchor the popup to the map.
+         */
+        var overlay = new Overlay({
+          element: infoMy,
+          autoPan: true,
+          autoPanAnimation: {
+            duration: 250
+          }
+        });
+                    
+       var vectorSourceState = new VectorSource({
         features: new GeoJSON({
             dataProjection: "EPSG:4326",
             featureProjection:"EPSG:3857"
         }).readFeatures(data),
         });
 
-   let vectorLayer = new VectorLayer({ style:  getStyle, source: vectorSource });
+      let vectorLayerState = new VectorLayer({ style:  getStyle, source: vectorSourceState });
         var map = new Map({
               target: 'map',
               layers: [
             new TileLayer({
               source: new OSM()
               }),   
-            vectorLayer
+              vectorLayerState, 
+              
             ],
             overlays: [overlay],
               view: new View({
@@ -574,45 +611,42 @@ var overlay = new Overlay({
             });
             let stateRev =this.state.stateRevenue
             let info = this.state.info
+
+
+            //// map click function
             map.on('click', function(evt) {
               
               let pixel = evt.pixel;
-              console.log("clicked")
-              
-              console.log(pixel)
-              console.log(this)
+             
            map.forEachFeatureAtPixel(pixel, function (feature, layer) {
-            
+            console.log(feature)
             let stateName = feature.get("name")
             console.log(stateName)
                    let eachId = feature.get("id")
                    console.log(stateRev)
                    let curRev = stateRev[eachId]
                   
-                   console.log(this)
+                 
                    var coordinate = evt.coordinate;
                    overlay.setPosition(coordinate);
-                  
+        
            let info = document.getElementById("info")
            info.innerHTML= ` ${ stateName} Rv: ${curRev}`
            let legend = document.getElementById("legend")
-          
-           
-                })
-               
-              })
-              
-          
-            
-        
+
+           //map present district data
+
+           let infoDist = document.getElementById("info-dist")
+           info.innerHTML= ` ${stateName} Rv: ${curRev}`
+          })
+        })
       }
    
-     
     render(){
             return(<div id="map" className="main-map" >
               <div id="info" ></div>
             <div id="legend"><h3 className="legend-header">Legend </h3> {this.getLegend()}</div>
-       
+            <div id="info-dist"></div>
             </div>)
           }
         }
